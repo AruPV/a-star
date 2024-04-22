@@ -36,13 +36,13 @@ class Maze {
 		void pushSearchLocations(
 			Cell*                         cell, 
 			PriorityQueue<double, Cell*>& search_queue, 
-			std::map<Position, double>&   searched_index
+			std::map<int, double>&   searched_index
 		);
 
-		void resetStats();
 		void updatePath();
 
 	public:
+		void resetStats();
 
 		bool              path_found = false;
 		int               path_length;

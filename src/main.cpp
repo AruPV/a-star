@@ -10,7 +10,7 @@
 
 typedef std::chrono::duration<double> Duration;
 typedef std::chrono::microseconds us;
-int TRIALS = 10000;
+int TRIALS = 30;
 
 class Stats {
 	/*************************************************************************
@@ -20,9 +20,9 @@ class Stats {
 
 	public:
 		Duration total_duration =  Duration::zero();
-		int  total_pushes       = 0;
-		int  total_path_length  = 0;
-		int  unreachable_count  = 0;
+		double  total_pushes       = 0;
+		double  total_path_length  = 0;
+		double  unreachable_count  = 0;
 
 		void print(){
 			auto average_duration = total_duration/TRIALS;
@@ -54,7 +54,6 @@ class Stats {
 
 
 void benchmarkAlgorithm(
-		std::optional<Cell*> (*function)(Maze*), 
 		int                    rows, 
 		int                    cols,
 		float                  proportion){;
@@ -64,7 +63,9 @@ void benchmarkAlgorithm(
 	 * function),                                                            *
 	 *************************************************************************/
 
-	Stats stats;
+	Stats dfs_stats;
+	Stats bfs_stats;
+	Stats a_stats;
 
 	for (int i: std::views::iota(0,TRIALS)){
 		std::mt19937 rng(i);
@@ -79,17 +80,45 @@ void benchmarkAlgorithm(
 
 		Position start_pos(start_row, start_col);
 		Position end_pos(end_row, end_col);
+		
+		std::cout << "Start Trial \n";
+		Maze maze = Maze(start_pos, end_pos, rows, cols, i, proportion);
 
-		Maze maze(start_pos, end_pos, rows, cols, i, proportion);
+		maze.resetStats();
 
-		const auto start       = std::chrono::steady_clock::now();
-		(function)(&maze);
-		const auto end         = std::chrono::steady_clock::now();
-		const auto it_duration = end-start;
+		auto start       = std::chrono::steady_clock::now();
+		Maze::bfs(&maze);
+		auto end         = std::chrono::steady_clock::now();
+		auto it_duration = end-start;
+		bfs_stats.update(maze, it_duration);
+		std::cout << "bfs version: \n" << maze.toString() << "\n";
 
-		stats.update(maze, it_duration);
+		maze.resetStats();
+
+		start       = std::chrono::steady_clock::now();
+		Maze::dfs(&maze);
+		end         = std::chrono::steady_clock::now();
+		it_duration = end-start;
+		dfs_stats.update(maze, it_duration);
+		std::cout << "dfs version: \n" << maze.toString() << "\n";
+
+		maze.resetStats();
+
+		start       = std::chrono::steady_clock::now();
+		Maze::a_star(&maze);
+		end         = std::chrono::steady_clock::now();
+		it_duration = end-start;
+		a_stats.update(maze, it_duration);
+		std::cout << "a_star version: \n" << maze.toString() << "\n";
+
+		maze.resetStats();
 	}
-	stats.print();
+	std::cout << "DFS Benchmark: \n";
+	dfs_stats.print();
+	std::cout << "BFS Benchmark: \n";
+	bfs_stats.print();
+	std::cout << "A Star Benchmark: \n";
+	a_stats.print();
 }
 
 
@@ -113,65 +142,6 @@ int main(){
 		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
 	}
 
-
-	std::cout 
-		<< "Testing Performance on:"     << "\n"
-		<< "  5x5 maze at:"              << "\n"
-		<< "    .2 blocked proportion"   << "\n"
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 5, 5, .2);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 5, 5, .2);
-
-	std::cout 
-		<< "    .5 blocked proportion"   << "\n"
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 5, 5, .5);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 5, 5, .5);
-
-	std::cout 
-		<< "  20x20 maze at:"            << "\n"
-		<< "    .2 blocked proportion"   << "\n";
-
-	std::cout 
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 20, 20, .2);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 20, 20, .2);
-
-	std::cout 
-		<< "    .5 blocked proportion"   << "\n"
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 20, 20, .5);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 20, 20, .5);
-
-	std::cout 
-		<< "  50x50 maze at:"            << "\n"
-		<< "    .2 blocked proportion"   << "\n"
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 50, 50, .2);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 50, 50, .2);
-
-	std::cout 
-		<< "    .5 blocked proportion"   << "\n"
-		<< "      DFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::dfs), 50, 50, .5);
-
-	std::cout 
-		<< "      BFS:"                  << "\n";
-	benchmarkAlgorithm(&(Maze::bfs), 50, 50, .5);
+	benchmarkAlgorithm(30, 30, .25);
 
 }

@@ -1,5 +1,6 @@
 #include "../incl/cell.hpp"
 #include <string>
+#include <iostream>
 
 Cell::Cell(Position position, Contents contents):
 	position 	{position}, 
@@ -42,9 +43,7 @@ bool     Cell::isGoal()                   {return contents == Contents::GOAL;}
 void     Cell::markOnPath()	              {contents = Contents::PATH;}
 void     Cell::markAsBlocked()            {contents = Contents::BLOCKED;}
 void     Cell::setParent(Cell& parent_cell){
-	Cell* new_ptr = new Cell();
-	new_ptr = &parent_cell;
-	delete this->parent;
+	Cell* new_ptr = &parent_cell;
 	this->parent = new_ptr;
 }
 

@@ -163,31 +163,6 @@ TEST_F(MazeTest, check_bfs_path_on_default_maze){
 	EXPECT_NE(default_maze.getCell(9,9).getParent(), nullptr);
 }
 
-TEST_F(MazeTest, a_star_on_default_maze){
-	EXPECT_EQ(Maze::a_star(&default_maze).has_value(), true);
-	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
-}
-
-TEST_F(MazeTest, check_a_star_path_on_default_maze){
-	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
-	default_maze.showPath();
-	EXPECT_EQ(default_maze.toString(), "| S | * | * | * |   |   | x | x |   |   |\n|   |   | x | * |   | x |   | x |   |   |\n| * | * | * | * | x |   |   |   |   |   |\n| * |   |   |   |   | * | * | * | * | * |\n| * | * | * | * | * | * | x |   | x | * |\n|   | x |   |   | x | x |   |   | * | * |\n|   |   |   |   | x |   | x |   | * |   |\n|   |   | x |   |   |   |   | x | * | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
-
-	// Maze should print like this:
-	//
-	//| S | * | * | * |   |   | x | x |   |   |
-	//|   |   | x | * |   | x |   | x |   |   |
-	//| * | * | * | * | x |   |   |   |   |   |
-	//| * |   |   |   |   | * | * | * | * | * |
-	//| * | * | * | * | * | * | x |   | x | * |
-	//|   | x |   |   | x | x |   |   | * | * |
-	//|   |   |   |   | x |   | x |   | * |   |
-	//|   |   | x |   |   |   |   | x | * | * |
-	//|   |   |   |   |   |   |   |   | x | * |
-	//| x |   |   |   | x |   | x | x |   | G |
-
-	EXPECT_NE(default_maze.getCell(9,9).getParent(), nullptr);
-}
 //Illegal mazes
 
 TEST_F (MazeTest, initialize_invalid_size_maze){
@@ -253,3 +228,28 @@ TEST_F(MazeTest, dfs_on_one_by_two_maze){
 	EXPECT_EQ(one_two_maze.getCell(0,0).getParent(), nullptr);
 }
 
+TEST_F(MazeTest, a_star_on_default_maze){
+	EXPECT_EQ(Maze::a_star(&default_maze).has_value(), true);
+	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
+}
+
+TEST_F(MazeTest, check_a_star_path_on_default_maze){
+	EXPECT_EQ(Maze::a_star(&default_maze).has_value(), true);
+	default_maze.showPath();
+	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   |   | x | x |   |   |\n| * | * | x |   |   | x |   | x |   |   |\n|   | * | * | * | x |   |   |   |   |   |\n|   |   |   | * | * | * | * | * |   |   |\n|   |   |   |   |   |   | x | * | x |   |\n|   | x |   |   | x | x |   | * | * | * |\n|   |   |   |   | x |   | x |   |   | * |\n|   |   | x |   |   |   |   | x |   | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
+
+	// Maze should print like this:
+	//
+	//| S |   |   |   |   |   | x | x |   |   |
+	//| * | * | x |   |   | x |   | x |   |   |
+	//|   | * | * | * | x |   |   |   |   |   |
+	//|   |   |   | * | * | * | * | * |   |   |
+	//|   |   |   |   |   |   | x | * | x |   |
+	//|   | x |   |   | x | x |   | * | * | * |
+	//|   |   |   |   | x |   | x |   |   | * |
+	//|   |   | x |   |   |   |   | x |   | * |
+	//|   |   |   |   |   |   |   |   | x | * |
+	//| x |   |   |   | x |   | x | x |   | G |
+
+	EXPECT_NE(default_maze.getCell(9,9).getParent(), nullptr);
+}

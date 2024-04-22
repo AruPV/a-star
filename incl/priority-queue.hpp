@@ -12,7 +12,6 @@
 #else
 #define DEBUG_MSG(str) do {} while(false)
 #endif
-
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -253,7 +252,6 @@ class PriorityQueue{
 				cur_i = swap_i;
 			}
 
-			DEBUG_MSG("WARNING, THE REMOVE MIN FUNCTION IS BROKEN.");
 			return return_entry;
 
 		}

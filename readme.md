@@ -1,4 +1,4 @@
-# LAB 5: DFS & BFS
+# LAB 6: DFS, BFS & A*
 
 ***
 
@@ -10,13 +10,12 @@ Prof. Barry Lawson
 
 ## WHAT
 
-An implementation of DFS and BFS for maze searching written in Modern C++.
+An implementation of DFS, BFS and A* for maze searching written in Modern C++.
 
 The project will generate two binaries.
 
 tests: The testing, built using Google's GoogleTest library.
 performance: Experiments to analyze the performance of different path finding algorithms.
-
 ## HOW TO COMPILE
 
 The project uses CMake as a build tool. A makefile is provided in the build 

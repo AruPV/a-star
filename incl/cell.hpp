@@ -44,6 +44,7 @@ class Cell{
 		bool isGoal();
 
 		void setParent(Cell& parent_cell);
+		void setParent(Cell* parent_cell);
 		void markOnPath();
 		void markAsBlocked();
 

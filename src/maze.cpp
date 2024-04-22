@@ -1,10 +1,4 @@
 //Macros
-#define NDEBUG
-#ifndef NDEBUG 
-#define DEBUG_MSG(str) do { std::cout << str << "\n"; } while (false)
-#else
-#define DEBUG_MSG(str) do {} while(false)
-#endif
 
 #include <ranges>
 #include <map>
@@ -126,8 +120,8 @@ void Maze::pushSearchLocations(
 
 	searched_index[(*cell).toInt()] = true;
 	//None of these can be references because they're rvalues.
-	Position start_pos   = cell->getPosition();
-	Position west_pos  = Position(start_pos.row  , start_pos.col-1);
+	Position start_pos = cell->getPosition(); 
+	Position west_pos  = Position(start_pos.row  , start_pos.col-1); 
 	Position east_pos  = Position(start_pos.row  , start_pos.col+1);
 	Position north_pos = Position(start_pos.row-1, start_pos.col);
 	Position south_pos = Position(start_pos.row+1, start_pos.col);
@@ -168,7 +162,7 @@ void Maze::pushSearchLocations(
 	Queue<Cell*>&        search_queue, 
 	std::map<int, bool>& searched_index){
 	/*******************************************************************
-	* Goes through the adjacent cells to a cell and pushes those that  *
+	*oes through the adjacent cells to a cell and pushes those that  *
 	* are "valid" (not blocked or in path) into a queue that is passed *
 	* by the user.                                                     *
 	********************************************************************/
@@ -230,11 +224,11 @@ double Maze::manhattan(Cell* n){
 void Maze::pushSearchLocations(
 	Cell*                         n, 
 	PriorityQueue<double, Cell*>& to_explore, 
-	std::map<Position, double>&   explored){
+	std::map<int, double>&        explored){
 
 	
 	DEBUG_MSG(std::string("Called pushSearchLocations on the cell at: ")
-			+ posToString((*cell).getPosition()));
+			+ posToString(n->getPosition()));
 
 	//None of these can be references because they're rvalues.
 	Position start_pos = n->getPosition();
@@ -261,24 +255,28 @@ void Maze::pushSearchLocations(
 
 		Cell* m         = &this->getCell(m_pos.row, m_pos.col);
 
+		DEBUG_MSG("Checking if blocked");
 		bool is_blocked = m->getContents() == Contents::BLOCKED; 
 		if (is_blocked) {continue;}
 
 		//Get Updated values
-		double updated_g_m = explored[n->getPosition()]+1;
+		double updated_g_m = (explored[n->toInt()])+1;
 		double updated_h_m = this->manhattan(m);		//This is not needed i think
 		double updated_f_m = updated_h_m + updated_g_m;
 
-		double cur_g_m  = explored[m->getPosition()]; 
-		if (!(updated_g_m < cur_g_m) && cur_g_m != -1){continue;}
+		DEBUG_MSG("Checking if smaller or unchecked");
+		double cur_g_m  = explored[n->toInt()]+1; 
+		if (!(updated_g_m < cur_g_m) && m->g_n != -1){continue;}
 		
 		//Update state in cell
+		DEBUG_MSG("Updating state in cell");
 		m->setParent(*n);
 		m->h_n = updated_h_m;	
 		m->g_n = updated_g_m;
 
 		//Update state in explored and to_explore
-		explored[m->getPosition()] = updated_g_m;
+		DEBUG_MSG("Updating state in explored and to_explore");
+		explored[m->toInt()] = updated_g_m;
 		to_explore.insert(updated_f_m, m);
 
 		//Book-keeping
@@ -303,7 +301,6 @@ void Maze::updatePath(){
 	 ****************************************************************/
 	Cell* cur_cell = &this->getCell(goal.row,goal.col);
 	while (cur_cell->getParent() != nullptr){
-		DEBUG_MSG(std::string("Inside loop for: ") + posToString(cur_cell->getPosition()));
 		Contents cur_contents = cur_cell->getContents();
 		if (cur_contents != Contents::GOAL){
 			this->path_length += 1;
@@ -316,22 +313,30 @@ void Maze::updatePath(){
 //////////////////////////////////////////////////////////////////////////////
 std::optional<Cell*> Maze::a_star(Maze* maze){
 
-	PriorityQueue<double, Cell*> to_explore;
-	std::map<Position, double>   explored;
+	DEBUG_MSG("IN A-STAR"); 
+	PriorityQueue<double, Cell*> to_explore; 
+	std::map<int, double>   explored;
 
+	DEBUG_MSG("GETTING START CELL:"); 
 	Cell* n = &maze->getCell(maze->start.row, maze->start.col);
+	DEBUG_MSG(n->getPosition().col + n->getPosition().row); 
 	double g_n = n->g_n = 0.0;
 	double h_n = n->h_n = maze->manhattan(n);
 	double f_n = g_n + g_n;
 	
+	DEBUG_MSG("Inserting into PQ"); 
 	to_explore.insert(f_n, n);
-	explored[n->getPosition()] = g_n;
+	DEBUG_MSG("Updating Map"); 
+	explored[n->toInt()] = g_n;
 
 	while (!to_explore.is_empty()){
+		DEBUG_MSG("Exploring loop for entry at:"); 
 		Entry<double, Cell*> e = to_explore.remove_min();
+		DEBUG_MSG(e.key); 
 		n = e.value;
 
 		if (n == &maze->getCell(maze->goal.row, maze->goal.col)){
+			DEBUG_MSG("Path found, updating:"); 
 			maze->path_found = true;
 			maze->updatePath();
 			return n;
@@ -339,8 +344,7 @@ std::optional<Cell*> Maze::a_star(Maze* maze){
 
 		maze->pushSearchLocations(n, to_explore, explored);	
 	}
-
-	return std::nullopt;
+return std::nullopt;
 }
 
 //////////////////////////////////////////////////////////////////////////////
